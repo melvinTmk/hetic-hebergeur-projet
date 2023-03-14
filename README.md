@@ -1,28 +1,25 @@
-# Un chat, genre comme celui d'Instagram mais en (beaucoup) moins bien
+# Symfony x Docker
+#### Avec MariaDB, PhpMyAdmin & MailDev
 
-Le système est donc composé des briques suivantes :
-- Un back Symfony qui va gérer l'auth des users et l'enregistrement des messages en DB
-- Un front en React qui prend la charge d'être un terminal de gestion de messages
-
-Pour lancer le projet faut
+Pour lancer le projet :
 ```shell
 docker-compose up -d
-cd frontend
-npm install
-npm run start
+docker exec symfony_docker composer create-project symfony/skeleton symfony_project
+sudo chown -R $USER ./
 ```
 
-Puis, depuis l'intérieur du container Symfony
+Pensez ensuite à aller exécuter toutes vos commandes depuis l'intérieur
+du container.
+
+Par exemple :
 ```shell
-cd /var/www/project
-composer install
-symfony console doctrine:database:create
-symfony console doctrine:migrations:migrate
-symfony console doctrine:fixtures:load
+cd symfony_project
+composer require orm
 ```
 
-Rendez-vous ensuite sur http://localhost:8080 <br>
-user : root <br>
-password : ChangeMeLater
+(Demandez à Composer de **NE PAS** créer une config Docker pour la database)
 
-et prenez des utilisateurs au hasard, leurs password est 'password'
+Enfin, modifiez la config DB dans le fichier .env de Symfony :
+```dotenv
+DATABASE_URL=mysql://root:ChangeMeLater@db:3306/symfony_db?serverVersion=mariadb-10.7.1
+```
