@@ -4,8 +4,6 @@
 Pour lancer le projet :
 ```shell
 docker-compose up -d
-docker exec symfony_docker composer create-project symfony/skeleton symfony_project
-sudo chown -R $USER ./
 ```
 
 Pensez ensuite à aller exécuter toutes vos commandes depuis l'intérieur
@@ -14,10 +12,10 @@ du container.
 Par exemple :
 ```shell
 cd symfony_project
-composer require orm
+composer install
+symfony console doctrine:migrations:migrate
+symfony console doctrine:fixtures:load
 ```
-
-(Demandez à Composer de **NE PAS** créer une config Docker pour la database)
 
 Enfin, modifiez la config DB dans le fichier .env de Symfony :
 ```dotenv
