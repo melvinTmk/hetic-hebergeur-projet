@@ -13,6 +13,7 @@ Par exemple :
 ```shell
 cd symfony_project
 composer install
+symfony console doctrine:database:create
 symfony console doctrine:migrations:migrate
 symfony console doctrine:fixtures:load
 ```
