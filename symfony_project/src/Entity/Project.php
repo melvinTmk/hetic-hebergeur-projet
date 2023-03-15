@@ -47,6 +47,16 @@ class Project
         return $this;
     }
 
+    public function setUser(User $user): void
+    {
+        $this->user = $user;
+    }
+    
+    public function getUser(User $user): void
+    {
+        $this->user = $user;
+    }
+
     public function getOwner(): ?User
     {
         return $this->owner;
