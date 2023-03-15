@@ -4,17 +4,82 @@
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .example-wrapper { 
+        margin: 1em auto; 
+        max-width: 800px;
+        font-family: apple;
+    }
+    
+    .example-wrapper .title-01 { 
+        font-size: 42px;
+    }
+    .example-wrapper .file-container {
+        border: #0d1117 solid 1px;
+        border-radius: 6px;
+        padding: 0 16px;
+    }
+    .example-wrapper .file-content {
+        display: flex;
+        flex-direction: row;
+        width: 100%;
+        justify-content: space-between;
+        padding: 10px 0px;
+    }
+    .example-wrapper .file-name {
+        width: 60%;
+        font-weight: bold;
+        font-size: 16px;
+        text-transform: uppercase;
+    }
+
+    .example-wrapper .add-file {
+        width: 100%;
+        border: #0d1117 solid 1px;
+        border-radius: 6px;
+        display: flex;
+        padding: 4px 0;
+        justify-content: center;
+        margin: 32px 0;
+        text-decoration: none;
+        color: #0d1117;
+    }
+
+    .example-wrapper .file-upload-container {
+        margin: 16px 0;
+    }
+    .example-wrapper .file-upload-container form {
+        display: flex;
+        flex-direction: column;
+        gap: 8px
+    }
+    .example-wrapper .file-upload-button {
+        text-decoration: none;
+        padding: 6px 0;
+        border: #0d1117 solid 1px;
+        border-radius: 6px;
+        cursor: pointer;
+    }
 </style>
 
 <div class="example-wrapper">
-    <h1>Hello {{ controller_name }}! ✅</h1>
+    <h1 class="title-01">{{ project.name }}</h1>
 
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ '/var/www/symfony_project/src/Controller/ProjectController.php'|file_link(0) }}">src/Controller/ProjectController.php</a></code></li>
-        <li>Your template at <code><a href="{{ '/var/www/symfony_project/templates/project/index.html.twig'|file_link(0) }}">templates/project/index.html.twig</a></code></li>
-    </ul>
+    {% if files %}
+        <div class="file-container">
+        {% for file in files %}
+            <div class="file-content">
+                <span class="file-item file-name">{{ file.name }}</span>
+                <span class="file-item file-date">{{ file.getCreatedAt()|date("m/d/Y") }}</span>
+                <span class="file-item file-size">{{ file.size }} size</span>
+            </div>
+        {% endfor %}
+        </div>
+    {% endif %}
+    <div class="file-upload-container">
+    {{ form_start(form) }}
+        {{ form_row(form.file) }}
+        <button type="submit" class="file-upload-button">Ajouter fichier</button>
+    {{ form_end(form) }}
+    </div>
 </div>
 {% endblock %}
