@@ -2,12 +2,18 @@
 
 namespace App\Controller;
 
+use App\Entity\Project;
+
+use App\Repository\ProjectRepository;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
+
 use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\File;
+
 use Doctrine\Persistence\ManagerRegistry;
 
 class ProjectController extends AbstractController
@@ -45,5 +51,18 @@ class ProjectController extends AbstractController
         return $this->render('project/index.html.twig', ['projects' => $projects]);
 
        
+    }
+
+    #[Route('/project/{id}', name: 'app_show_project')]
+    public function show(ProjectRepository $projectRepository, ManagerRegistry $doctrine, int $id): Response
+    {
+        $project = $doctrine->getRepository(Project::class)->find($id);
+        $files = $project->getFiles();
+        
+        return $this->render('project/project.html.twig', [
+            'controller_name' => 'ProjectController',
+            'project' => $project,
+            'files' => $files,
+        ]);
     }
 }
