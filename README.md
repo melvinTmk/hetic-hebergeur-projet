@@ -9,7 +9,7 @@ docker-compose up -d
 Pensez ensuite à aller exécuter toutes vos commandes depuis l'intérieur
 du container.
 
-Par exemple :
+Dans le shell :
 ```shell
 cd symfony_project
 composer install
