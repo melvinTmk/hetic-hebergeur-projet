@@ -70,7 +70,7 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/', name: 'app_project_show_all')]
+    #[Route('/all', name: 'app_project_show_all')]
     public function show_all(ManagerRegistry $doctrine): Response
     {
         $projects = $doctrine->getRepository(Project::class)->findAll();
@@ -81,6 +81,24 @@ class ProjectController extends AbstractController
         }
 
         return $this->render('project/index.html.twig', ['projects' => $projects]);
+    }
+
+    #[Route('/', name: 'app_project_user')]
+    public function show_user_project(ManagerRegistry $doctrine): Response
+    {
+        $current_user = $this->getUser();
+
+        $projects = $doctrine->getRepository(Project::class)->findByUser($current_user);
+        if (!$projects) {
+            throw $this->createNotFoundException(
+                'No projects found'
+            );
+        }
+
+        return $this->render('project/index.html.twig', [
+            'user' => $current_user,
+            'projects' => $projects,
+        ]);
     }
 
     #[Route('/add_project', name: 'app_add_project')]
