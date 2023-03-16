@@ -6,6 +6,8 @@ use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\File;
 
+use App\Command\CreateDatabaseCommand;
+
 use App\Repository\UserRepository;
 
 use App\Repository\ProjectRepository;
@@ -135,7 +137,9 @@ class ProjectController extends AbstractController
                     'No projects found'
                 );
             }
-    
+
+            CreateDatabaseCommand::execute();
+
             return $this->render('project/index.html.twig', [
                 'user' => $current_user,
                 'projects' => $projects,
