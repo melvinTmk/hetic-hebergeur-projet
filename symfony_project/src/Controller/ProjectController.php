@@ -2,7 +2,21 @@
 
 namespace App\Controller;
 
+use App\Entity\Project;
+use App\Entity\User;
+use App\Entity\File;
+
+use App\Repository\UserRepository;
+
+use App\Repository\ProjectRepository;
+use Doctrine\ORM\EntityManagerInterface;
+
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+
+use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -11,58 +25,110 @@ use App\Form\ProjectType;
 use Doctrine\Persistence\ManagerRegistry;
 use Doctrine\ORM\EntityManagerInterface;
 
-
-
-class ProjectController extends AbstractController  
+class ProjectController extends AbstractController
 {
-    #[Route('/project', name: 'app_project')]
-    public function index(ManagerRegistry $doctrine): Response
+    #[Route('/project/{id}', name: 'app_show_project')]
+    public function show(ProjectRepository $projectRepository, ManagerRegistry $doctrine, 
+                        EntityManagerInterface $entityManagerInterface, Request $request, int $id): Response
     {
-        // Récupérer l'utilisateur connecté
-        $user = $this->getUser();
+        $project = $doctrine->getRepository(Project::class)->find($id);
+        $files = $project->getFiles();
 
-        // Récupérer tous les projets de l'utilisateur
-        $projects = $doctrine
-            ->getRepository(Project::class)
-            ->findBy(['owner' => $user]);
 
-        // Afficher la liste des projets
-        return $this->render('project/index.html.twig', [
-            'projects' => $projects,
+        $form = $this->createFormBuilder()
+            ->add('file', FileType::class)
+            ->getForm();
+
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $file = $form->get('file')->getData();
+
+            //var_dump($file->getSize());
+            //die;
+            $newfile = new File();
+            $newfile->setName($file->getClientOriginalName());
+            $newfile->setUrl($file->getPath());
+            $newfile->setProject($project);
+            $newfile->setSize($file->getSize());
+            $newfile->setCreatedAt(new \DateTime());
+            
+
+            $entityManagerInterface->persist($newfile);
+            $entityManagerInterface->flush();
+
+            return $this->render('project/project.html.twig', [
+                'controller_name' => 'ProjectController',
+                'project' => $project,
+                'files' => $files,
+                'form' => $form->createView()
+            ]);
+        }
+
+        
+        return $this->render('project/project.html.twig', [
+            'project' => $project,
+            'files' => $files,
+            'form' => $form->createView()
         ]);
     }
 
-     /**
-     * @Route("/project/create", name="create_project")
-     */
-    public function create(Request $request): Response
+    #[Route('/', name: 'app_project_show_all')]
+    public function show_all(ManagerRegistry $doctrine): Response
     {
-        // On crée une nouvelle instance de Project
-        $project = new Project();
-    
-        // On récupère l'utilisateur connecté
-        $user = $this->getUser();
-    
-        // On lie le projet à l'utilisateur connecté
-        $project->setOwner($user);
-    
-        // On récupère le formulaire de création de projet
-        $form = $this->createForm(ProjectType::class, $project);
-    
-        // Si le formulaire est soumis et valide
-        if ($form->isSubmitted() && $form->isValid()) {
-            // On enregistre le nouveau projet en base de données
-            $entityManager = $this->getDoctrine()->getManager();
-            $entityManager->persist($project);
-            $entityManager->flush();
-    
-            // On redirige l'utilisateur vers la page de liste des projets
-            return $this->redirectToRoute('app_project');
+        $projects = $doctrine->getRepository(Project::class)->findAll();
+        if (!$projects) {
+            throw $this->createNotFoundException(
+                'No projects found'
+            );
         }
+
+        return $this->render('project/index.html.twig', ['projects' => $projects]);
+    }
+
+    #[Route('/add_project', name: 'app_add_project')]
+    public function add_project(Request $request, EntityManagerInterface $entityManagerInterface, ManagerRegistry $doctrine, UserRepository $userRepository) { 
+        $project = new Project();
+        $current_user = $this->getUser();
+
+        $form = $this->createFormBuilder($project)
+        ->add("name", TextType::class,[
+            "label"=> "Nom",
+            "attr"=>[
+                'placeholder' => 'Exemple : little friend',
+                "class"=> "project-title"
+            ]
+        ])
+        ->add("submit", SubmitType::class, [
+            "label"=> "Ajouter",
+            "attr"=>[
+                "class"=> "project-submit"
+            ]
+        ])
+        ->getForm();
+        
+        $project->setOwner($userRepository->findRandomUser());
+        
+        $form->handleRequest($request);
+        
+        if($form->isSubmitted() && $form->isValid()){
+            $entityManagerInterface->persist($project);
+            $entityManagerInterface->flush();
+
+            $projects = $doctrine->getRepository(Project::class)->findAll();
+            if (!$projects) {
+                throw $this->createNotFoundException(
+                    'No projects found'
+                );
+            }
     
-        // On affiche le formulaire de création de projet
-        return $this->render('project/create.html.twig', [
-            'form' => $form->createView(),
+            return $this->render('project/index.html.twig', ['projects' => $projects]);
+        }
+
+        return $this->render('project/addproject.html.twig', [
+            "form" => $form->createView()
         ]);
     }
 }
+
+
