@@ -41,16 +41,20 @@
 </style>
 
 <div class="example-wrapper">
+    {% if user %}
     <h1 class="title-01">Hello {{ user.username }}</h1>
     <a href="{{ path('app_logout') }}">Logout</a>
+    {% endif %}
 
     <div class="project-container">
     {% for project in projects %}
         <div class="project-content">
             <span class="project-item project-title">{{project.name}}</span>
-            <a href="{{ path('app_show_project', {'id':project.id}) }}" class="project-item project-btn"> see project</a>
+            <a href="{{ path('app_show_project', {'id':project.id}) }}" class="project-item project-btn">see project</a>
         </div>
     {% endfor %}
     </div>
+
+    <a href="{{ path('app_add_project')}}" class="project-item project-btn">Ajouter Projet</a>
 </div>
 {% endblock %}

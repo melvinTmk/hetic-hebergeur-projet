@@ -70,20 +70,19 @@ class ProjectController extends AbstractController
         ]);
     }
 
-    #[Route('/all', name: 'app_project_show_all')]
+    #[Route('/', name: 'app_project_show_all')]
     public function show_all(ManagerRegistry $doctrine): Response
     {
+        $current_user = $this->getUser();
         $projects = $doctrine->getRepository(Project::class)->findAll();
-        if (!$projects) {
-            throw $this->createNotFoundException(
-                'No projects found'
-            );
-        }
 
-        return $this->render('project/index.html.twig', ['projects' => $projects]);
+        return $this->render('project/index.html.twig', [
+            'user' => $current_user,
+            'projects' => $projects,
+        ]);
     }
 
-    #[Route('/', name: 'app_project_user')]
+    #[Route('/projects', name: 'app_project_user')]
     public function show_user_project(ManagerRegistry $doctrine): Response
     {
         $current_user = $this->getUser();
@@ -122,7 +121,7 @@ class ProjectController extends AbstractController
         ])
         ->getForm();
         
-        $project->setOwner($userRepository->findRandomUser());
+        $project->setOwner($current_user);
         
         $form->handleRequest($request);
         
@@ -130,14 +129,17 @@ class ProjectController extends AbstractController
             $entityManagerInterface->persist($project);
             $entityManagerInterface->flush();
 
-            $projects = $doctrine->getRepository(Project::class)->findAll();
+            $projects = $doctrine->getRepository(Project::class)->findByUser($current_user);
             if (!$projects) {
                 throw $this->createNotFoundException(
                     'No projects found'
                 );
             }
     
-            return $this->render('project/index.html.twig', ['projects' => $projects]);
+            return $this->render('project/index.html.twig', [
+                'user' => $current_user,
+                'projects' => $projects,
+            ]);
         }
 
         return $this->render('project/addproject.html.twig', [
