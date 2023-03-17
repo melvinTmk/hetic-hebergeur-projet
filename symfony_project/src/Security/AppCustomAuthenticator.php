@@ -2,6 +2,8 @@
 
 namespace App\Security;
 
+use App\Command\SshConnectionCommand;
+
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -46,8 +48,11 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-        // For example:
-        return new RedirectResponse($this->urlGenerator->generate('project'));
+        $ssh = new SshConnectionCommand('74.249.24.54', 'groupe11', 'hetic2023groupe11ADR!');
+        $ssh->connect();
+        $output = $ssh->exec('ls -alh');
+        
+        return new RedirectResponse($this->urlGenerator->generate('app_project_user'));
         throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }
 

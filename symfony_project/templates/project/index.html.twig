@@ -2,13 +2,59 @@
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+    .example-wrapper { 
+        margin: 1em auto; 
+        max-width: 800px;
+        font-family: apple;
+    }
+    
+    .example-wrapper .title-01 { 
+        font-size: 42px;
+        margin: 0.67em 0 0 0;
+    }
+    .example-wrapper .project-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: space-between;
+        margin: 24px 0;
+    }
+
+    .example-wrapper .project-content {
+        display: flex;
+        flex-direction: column;
+        width: 30%;
+        border: #0d1117 solid 1px;
+        padding: 8px;
+        border-radius: 12px;
+    }
+    .example-wrapper .project-title {
+        font-size: 28px
+    }
+    .example-wrapper .project-btn {
+        text-align: center;
+        text-transform: uppercase;
+        text-decoration: none;
+        margin: 24px 0 0 0;
+        color: #0d1117;
+        cursor: pointer;
+    }
 </style>
 
 <div class="example-wrapper">
-{% for project in projects %}
-    <p>{{project.name}}</p>
-{% endfor %}
+    {% if user %}
+    <h1 class="title-01">Hello {{ user.username }}</h1>
+    <a href="{{ path('app_logout') }}">Logout</a>
+    {% endif %}
+
+    <div class="project-container">
+    {% for project in projects %}
+        <div class="project-content">
+            <span class="project-item project-title">{{project.name}}</span>
+            <a href="{{ path('app_show_project', {'id':project.id}) }}" class="project-item project-btn">see project</a>
+        </div>
+    {% endfor %}
+    </div>
+
+    <a href="{{ path('app_add_project')}}" class="project-item project-btn">Ajouter Projet</a>
 </div>
 {% endblock %}

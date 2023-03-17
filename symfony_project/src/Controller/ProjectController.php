@@ -6,6 +6,8 @@ use App\Entity\Project;
 use App\Entity\User;
 use App\Entity\File;
 
+use App\Command\CreateDatabaseCommand;
+
 use App\Repository\UserRepository;
 
 use App\Repository\ProjectRepository;
@@ -73,14 +75,31 @@ class ProjectController extends AbstractController
     #[Route('/', name: 'app_project_show_all')]
     public function show_all(ManagerRegistry $doctrine): Response
     {
+        $current_user = $this->getUser();
         $projects = $doctrine->getRepository(Project::class)->findAll();
+
+        return $this->render('project/index.html.twig', [
+            'user' => $current_user,
+            'projects' => $projects,
+        ]);
+    }
+
+    #[Route('/projects', name: 'app_project_user')]
+    public function show_user_project(ManagerRegistry $doctrine): Response
+    {
+        $current_user = $this->getUser();
+
+        $projects = $doctrine->getRepository(Project::class)->findByUser($current_user);
         if (!$projects) {
             throw $this->createNotFoundException(
                 'No projects found'
             );
         }
 
-        return $this->render('project/index.html.twig', ['projects' => $projects]);
+        return $this->render('project/index.html.twig', [
+            'user' => $current_user,
+            'projects' => $projects,
+        ]);
     }
 
     #[Route('/add_project', name: 'app_add_project')]
@@ -104,7 +123,7 @@ class ProjectController extends AbstractController
         ])
         ->getForm();
         
-        $project->setOwner($userRepository->findRandomUser());
+        $project->setOwner($current_user);
         
         $form->handleRequest($request);
         
@@ -112,14 +131,19 @@ class ProjectController extends AbstractController
             $entityManagerInterface->persist($project);
             $entityManagerInterface->flush();
 
-            $projects = $doctrine->getRepository(Project::class)->findAll();
+            $projects = $doctrine->getRepository(Project::class)->findByUser($current_user);
             if (!$projects) {
                 throw $this->createNotFoundException(
                     'No projects found'
                 );
             }
-    
-            return $this->render('project/index.html.twig', ['projects' => $projects]);
+
+            CreateDatabaseCommand::execute();
+
+            return $this->render('project/index.html.twig', [
+                'user' => $current_user,
+                'projects' => $projects,
+            ]);
         }
 
         return $this->render('project/addproject.html.twig', [
