@@ -25,9 +25,9 @@ class SshConnectionCommand
         if (!$this->ssh->login($this->username, $this->password)) {
             throw new \RuntimeException('Unable to connect to SSH server');
         }
-        else{
-                echo 'SSH connection established successfully.';
-        }
+        // else{
+        //     echo 'SSH connection established successfully.';
+        // }
     }
 
     public function exec($command)
