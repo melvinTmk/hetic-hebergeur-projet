@@ -1,4 +1,7 @@
 <?php
+
+namespace App\Command;
+
 use phpseclib3\Net\SSH2;
 
 class SshConnectionCommand
