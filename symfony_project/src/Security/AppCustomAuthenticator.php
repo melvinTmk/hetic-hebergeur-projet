@@ -48,10 +48,12 @@ class AppCustomAuthenticator extends AbstractLoginFormAuthenticator
             return new RedirectResponse($targetPath);
         }
 
+        //Commanter si besoin
         $ssh = new SshConnectionCommand('74.249.24.54', 'groupe11', 'hetic2023groupe11ADR!');
         $ssh->connect();
         $output = $ssh->exec('ls -alh');
-        
+        //Fin Commantaire
+
         return new RedirectResponse($this->urlGenerator->generate('app_project_user'));
         throw new \Exception('TODO: provide a valid redirect inside '.__FILE__);
     }

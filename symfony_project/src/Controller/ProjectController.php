@@ -138,7 +138,9 @@ class ProjectController extends AbstractController
                 );
             }
 
+            //Commanter si besoin
             CreateDatabaseCommand::execute();
+            //Fin Commantaire
 
             return $this->render('project/index.html.twig', [
                 'user' => $current_user,
