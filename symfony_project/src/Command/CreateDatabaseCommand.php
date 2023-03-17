@@ -1,5 +1,6 @@
 <?php
 
+use phpseclib\Net\SSH2;
 
 
 $ssh = new SSH2('groupe11@74.249.24.54');
