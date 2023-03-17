@@ -7,10 +7,7 @@ class SshConnectionCommand
     private $username;
     private $password;
     private $ssh;
-    private $database_name = 'my_new_database';
-    private $create_database_command = 'mysql -u root -p -e "CREATE DATABASE ' . $database_name . ';"';
-    private $result = $ssh->exec($create_database_command);
-    
+   
   
     public function __construct($host, $username, $password)
     {
@@ -40,11 +37,5 @@ class SshConnectionCommand
         return $output;
     }
 
-    public function dbConnexion($result){
-        if ($result) {
-            echo 'Database created successfully.';
-        } else {
-            echo 'Error creating database: ' . $ssh->getLastError();
-        }
-    }
+  
 }
