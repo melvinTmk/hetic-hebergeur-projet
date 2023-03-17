@@ -2,7 +2,10 @@
 
 
 
-
+$ssh = new SSH2('groupe11@74.249.24.54');
+if (!$ssh->login('groupe11@74.249.24.54', 'hetic2023groupe11ADR!')) {
+    exit('Login Failed');
+}
 $database_name = 'my_new_database';
 $create_database_command = 'mysql -u root -p -e "CREATE DATABASE ' . $database_name . ';"';
 $result = $ssh->exec($create_database_command);
